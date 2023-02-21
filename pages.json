@@ -2,12 +2,12 @@
 	"pages": [{
 		"path": "pages/index/index",
 		"style": {
-			"navigationBarTitleText": "机器人"
+			"navigationBarTitleText": "AI智能机器人"
 		}
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "AI机器人",
+		"navigationBarTitleText": "AI智能机器人",
 		"navigationBarBackgroundColor": "#fff",
 		"backgroundColor": "#fff",
 		"app-plus": {

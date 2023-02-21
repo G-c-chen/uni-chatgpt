@@ -12,9 +12,9 @@
 			<!-- 输入操作 -->
 			<view class="input-block">
 
-				<textarea :confirm-hold="true" @linechange="linechange" :cursor-spacing="10" :cursor="10"
+				<textarea :disabled="disabled" :confirm-hold="true" @linechange="linechange" :cursor-spacing="10" :cursor="10"
 					:adjust-position="false" :disable-default-padding="true" :maxlength="-1" v-model="msgInput"
-					placeholder="想问什么" :show-confirm-bar="false" :auto-height="false"
+					placeholder="想问什么可以向我提问" :show-confirm-bar="false" :auto-height="false"
 					:style="{height: inputHeight + 'rpx'}" @confirm="sendClick" confirm-type="send"
 					@input="inputhandle" />
 
@@ -27,13 +27,16 @@
 
 <script>
 	import chatItem from '../components/chat-item.vue';
-	// import { ChatGPTAPI } from 'chatgpt';
+	import api from 'service/api';
 	const ai_avatar = require('../../static/openai_avatar1.png');
 	const me_avatar = require('../../static/openai_avatar2.png');
 	export default {
 		components: {chatItem},
 		data() {
 			return {
+				conversationId: '',
+				parentMessageId: '',
+				disabled: false,
 				scrollAnimation: true,
 				OPENAI_API_KEY: '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',
 				msgInput: '',
@@ -45,7 +48,7 @@
 				windowTop: 0,
 				windowHeight: 667,
 				helloMsg: {
-					msg: '我是ChatGPT，是一种基于自然语言处理技术的人工智能应用程序，由OpenAI公司开发和训练。我可以回答你的问题，帮助你解决问题和提供建议。',
+					message: '我是ChatGPT，是一种基于自然语言处理技术的人工智能应用程序，由OpenAI公司开发和训练。我可以回答你的问题，帮助你解决问题和提供建议。',
 					is_me: 0,
 					msg_type: 1,
 					from_user: {
@@ -57,11 +60,6 @@
 			}
 		},
 		methods: {
-		initChatGPTAPI() {
-			this.api = new ChatGPTAPI({
-				apiKey: this.OPENAI_API_KEY
-			})
-		},
 		// 滚动到底部
 		pageScrollToBottom() {
 			console.log('--滚动--');
@@ -91,29 +89,39 @@
 				if (!this.msgInput.trim()) {
 					return this.$tips.warning('发送消息不能为空！');
 				}
-				let msg = this.createMsg(this.msgInput, 1);
-				// this.chatList.push(msg);
-				this.pushMsg(msg);
-				let answer = await this.api.sendMessage(this.msgInput);
-				console.log(answer, 'answer');
+				// 提问
+				this.createMsg({content: this.msgInput}, 1);
+				// this.chatList.push(message);
+				let message = this.msgInput;
 				this.msgInput = '';
+				let {conversationId, parentMessageId} = this;
+				// this.disabled = true;
+				let res = await api.sendMessage({message, conversationId, parentMessageId});
+				// this.disabled = false;
+				this.conversationId = res.conversationId;
+				this.parentMessageId = res.messageId;
+				console.log(res, 'res');
+				// 回答
+				this.createMsg(res, 0);
 			},
-			pushMsg(msg) {
-				this.chatList.push(msg);
+			pushMsg(message) {
+				this.chatList.push(message);
 				uni.setStorageSync('chatList', this.chatList);
 				this.pageScrollToBottom();
 			},
+	
 			// type: ai: 0|me: 1
-			createMsg(content, type = 0) {
-				let msg = {
+			createMsg(msgObj, type = 0) {
+				let message = {
+					...msgObj,
 					is_me: type,
 					msg_type: 1,
-					msg: content,
+					message: msgObj.content || msgObj.response,
 					from_user: {
 						avatar: type ? me_avatar : ai_avatar
 					}
 				}
-				return msg;
+				this.pushMsg(message);
 			},
 			linechange(e) {
 				console.log(e.detail, 'e.detail');
@@ -143,7 +151,6 @@
 			console.log(windowInfo, 'windowInfo');
 			this.windowTop = windowInfo.windowTop || 0;
 			this.windowHeight = windowInfo.windowHeight;
-			// this.initChatGPTAPI();
 		}
 	}
 </script>

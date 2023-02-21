@@ -40,7 +40,7 @@
 				let {
 					mess
 				} = this;
-				return (mess && mess.msg) || '';
+				return (mess && mess.message) || '';
 			},
 			userInfo() {
 				let {
