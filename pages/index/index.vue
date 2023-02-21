@@ -1,9 +1,10 @@
 <template>
-	<view class="container">
+	<view class="container" :style="{'height': `${windowHeight * 2}rpx`}">
+		<!-- <div class="nav-bar" :style="{height: `${windowTop * 2}rpx` }"></div> -->
 		<view class="chat-body">
-			<scroll-view>
+			<scroll-view :scroll-top="scrollY" scroll-y="true" class="chat-scroll" :scroll-with-animation="scrollAnimation">
 				<view class="list-item" v-for="(item) in chatList" :key="item.id" :id="`chatItem_${item.id}`">
-					<chatItem  :mess="item" />
+					<chatItem :mess="item" />
 				</view>
 			</scroll-view>
 		</view>
@@ -26,24 +27,50 @@
 
 <script>
 	import chatItem from '../components/chat-item.vue';
+	// import { ChatGPTAPI } from 'chatgpt';
+	const ai_avatar = require('../../static/openai_avatar1.png');
+	const me_avatar = require('../../static/openai_avatar2.png');
 	export default {
 		components: {chatItem},
 		data() {
 			return {
+				scrollAnimation: true,
+				OPENAI_API_KEY: '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',
 				msgInput: '',
+				scrollY: 9999,
 				oldMsgInput: '',
 				inputHeight: 54,
 				lineHeight: 54,
 				maxLine: 5,
-				chatList: [{
-					msg: '你好',
+				windowTop: 0,
+				windowHeight: 667,
+				helloMsg: {
+					msg: '我是ChatGPT，是一种基于自然语言处理技术的人工智能应用程序，由OpenAI公司开发和训练。我可以回答你的问题，帮助你解决问题和提供建议。',
 					is_me: 0,
-					msg_type: 1
-
-				}]
+					msg_type: 1,
+					from_user: {
+						avatar: ai_avatar
+					}
+				},
+				chatList: [],
+				api: null,
 			}
 		},
 		methods: {
+		initChatGPTAPI() {
+			this.api = new ChatGPTAPI({
+				apiKey: this.OPENAI_API_KEY
+			})
+		},
+		// 滚动到底部
+		pageScrollToBottom() {
+			console.log('--滚动--');
+      this.$nextTick(() => {
+				setTimeout(() => {
+					this.scrollY += 100;
+				}, 100);
+			})
+    },
 			inputhandle(e) {
 				let {
 					value,
@@ -59,17 +86,34 @@
 				}
 				this.oldMsgInput = this.msgInput;
 			},
-			sendClick() {
+			async sendClick() {
 				console.log('发送消息', this.msgInput);
 				if (!this.msgInput.trim()) {
 					return this.$tips.warning('发送消息不能为空！');
 				}
-				let msgObj = {
-					is_me: 1,
-					msg: this.msgInput
-				}
-				this.chatList.push(msgObj);
+				let msg = this.createMsg(this.msgInput, 1);
+				// this.chatList.push(msg);
+				this.pushMsg(msg);
+				let answer = await this.api.sendMessage(this.msgInput);
+				console.log(answer, 'answer');
 				this.msgInput = '';
+			},
+			pushMsg(msg) {
+				this.chatList.push(msg);
+				uni.setStorageSync('chatList', this.chatList);
+				this.pageScrollToBottom();
+			},
+			// type: ai: 0|me: 1
+			createMsg(content, type = 0) {
+				let msg = {
+					is_me: type,
+					msg_type: 1,
+					msg: content,
+					from_user: {
+						avatar: type ? me_avatar : ai_avatar
+					}
+				}
+				return msg;
 			},
 			linechange(e) {
 				console.log(e.detail, 'e.detail');
@@ -78,16 +122,28 @@
 					heightRpx,
 					lineCount
 				} = e.detail;
-				// console.log(height, 'height', heightRpx, 'heightRpx', lineCount, 'lineCount');
-				// this.inputHeight = 50 * lineCount;
 				if (this.maxLine > lineCount) {
 					this.inputHeight = this.lineHeight * lineCount;
-					// this.inputHeight = heightRpx;
 				} else {
 					this.inputHeight = this.lineHeight * this.maxLine;
 				}
-				// console.log(this.inputHeight, 'this.inputHeight');
 			},
+			initChatList() {
+				this.chatList = uni.getStorageSync('chatList') || [];
+				if (!this.chatList.length) {
+					this.chatList = [this.helloMsg];
+				} else {
+					this.pageScrollToBottom();
+				}
+			}
+		},
+		onLoad() {
+			this.initChatList();
+			let windowInfo = uni.getWindowInfo();
+			console.log(windowInfo, 'windowInfo');
+			this.windowTop = windowInfo.windowTop || 0;
+			this.windowHeight = windowInfo.windowHeight;
+			// this.initChatGPTAPI();
 		}
 	}
 </script>
@@ -100,9 +156,12 @@
 		flex-direction: column;
 		box-sizing: border-box;
 		overflow: hidden;
-
+		background-color: #f6f7fc;
 		.chat-body {
 			flex: 1;
+			overflow-y: scroll;
+			display: flex;
+			flex-direction: column;
 		}
 
 	}
@@ -111,6 +170,7 @@
 		display: flex;
 		padding: 18rpx 30rpx;
 		align-items: flex-end;
+		background-color: #fff;
 
 		.input-icon {
 			width: 56rpx;
@@ -134,6 +194,7 @@
 			overflow-y: scroll;
 			font-size: 32rpx;
 			color: #1A1A1A;
+			overflow-y:hidden;
 
 			&::placeholder {
 				color: #999999;
@@ -191,4 +252,16 @@
 			transform: translateY(-6rpx);
 		}
 	}
+	.chat-scroll {
+		width: 100%;
+		overflow-y: scroll;
+		flex: 1;
+		overflow-anchor: auto;
+		padding-bottom: 10rpx;
+	}
+.chat-list {
+  width: 100%;
+  padding-bottom: 60rpx;
+  overflow-anchor: auto;
+}
 </style>

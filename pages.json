@@ -2,14 +2,14 @@
 	"pages": [{
 		"path": "pages/index/index",
 		"style": {
-			"navigationBarTitleText": "ChatGPT"
+			"navigationBarTitleText": "机器人"
 		}
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "ChatGPT",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8",
+		"navigationBarTitleText": "AI机器人",
+		"navigationBarBackgroundColor": "#fff",
+		"backgroundColor": "#fff",
 		"app-plus": {
 			"background": "#efeff4"
 		}
