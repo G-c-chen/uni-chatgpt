@@ -1,5 +1,6 @@
 import tips from '@/utils/tips.js';
-const baseUrl = 'https://openapi.gcchen.cn';
+// const baseUrl = 'http://openapi.gcchen.cn';
+const baseUrl = 'http://localhost:3000';
 
 // HTTP工具类
 export default class http {

@@ -177,8 +177,10 @@
 	}
 
 	.input-block {
-		width: 750rpx;
+		// width: 750rpx;
+		width: 100%;
 		display: flex;
+		flex-direction: row;
 		padding: 18rpx 30rpx;
 		align-items: flex-end;
 		background-color: #fff;
@@ -192,7 +194,8 @@
 		}
 
 		.textarea-box {
-			width: 580rpx;
+			// width: 580rpx;
+			flex: 1;
 			display: flex;
 			padding: 20rpx 0rpx;
 			background: #F6F7FC;
