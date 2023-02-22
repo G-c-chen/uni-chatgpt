@@ -63,7 +63,8 @@
         },
         "title" : "AI智能机器人",
         "router" : {
-            "base" : "/"
+            "base" : "/",
+            "mode" : "history"
         },
         "uniStatistics" : {
             "enable" : true

@@ -1,5 +1,6 @@
 <template>
-	<view class="container" :style="{'height': `${windowHeight * 2}rpx`}">
+	<!-- :style="{'height': `${windowHeight * 2}rpx`}" -->
+	<view class="container">
 		<!-- <div class="nav-bar" :style="{height: `${windowTop * 2}rpx` }"></div> -->
 		<view class="chat-body">
 			<scroll-view :scroll-top="scrollY" scroll-y="true" class="chat-scroll" :scroll-with-animation="scrollAnimation">
@@ -12,13 +13,15 @@
 			<!-- 输入操作 -->
 			<view class="input-block">
 
-				<textarea :disabled="disabled" :confirm-hold="true" @linechange="linechange" :cursor-spacing="10" :cursor="10"
+				<div class="textarea-box">
+					<textarea :disabled="disabled" :confirm-hold="true" @linechange="linechange" :cursor-spacing="10" :cursor="10"
 					:adjust-position="false" :disable-default-padding="true" :maxlength="-1" v-model="msgInput"
 					placeholder="想问什么可以向我提问" :show-confirm-bar="false" :auto-height="false"
 					:style="{height: inputHeight + 'rpx'}" @confirm="sendClick" confirm-type="send"
 					@input="inputhandle" />
+				</div>
 
-				<text class="send-btn" @click.stop.prevent="sendClick">发送</text>
+				<div class="send-btn" @click.stop.prevent="sendClick">发送</div>
 
 			</view>
 		</view>
@@ -42,8 +45,8 @@
 				msgInput: '',
 				scrollY: 9999,
 				oldMsgInput: '',
-				inputHeight: 54,
-				lineHeight: 54,
+				inputHeight: 40,
+				lineHeight: 40,
 				maxLine: 5,
 				windowTop: 0,
 				windowHeight: 667,
@@ -174,10 +177,13 @@
 	}
 
 	.input-block {
+		width: 750rpx;
 		display: flex;
 		padding: 18rpx 30rpx;
 		align-items: flex-end;
 		background-color: #fff;
+		box-sizing: border-box;
+		justify-content: space-between;
 
 		.input-icon {
 			width: 56rpx;
@@ -185,20 +191,27 @@
 			transform: translateY(-10rpx);
 		}
 
+		.textarea-box {
+			width: 580rpx;
+			display: flex;
+			padding: 20rpx 0rpx;
+			background: #F6F7FC;
+			box-sizing: border-box;
+			margin-right: 10rpx;
+			overflow-y: hidden;
+		}
 		textarea,
 		.textarea {
-			flex: 1;
-			min-height: 76rpx;
-			line-height: 32rpx;
+			// flex: 1;
+			line-height: 40rpx;
 			// max-height: 150rpx;
 			margin: 0rpx 20rpx;
 			height: auto;
 			background: #F6F7FC;
 			// background: #999;
 			border-radius: 12rpx;
-			padding: 20rpx 20rpx;
+			// padding: 0 20rpx;
 			box-sizing: border-box;
-			overflow-y: scroll;
 			font-size: 32rpx;
 			color: #1A1A1A;
 			overflow-y:hidden;
@@ -208,18 +221,6 @@
 			}
 		}
 
-		input {
-			position: absolute;
-			top: -10rpx;
-			left: 0;
-			width: 750px;
-			max-width: 750rpx;
-			height: 200rpx;
-			overflow: visible;
-			word-break: break-all;
-			z-index: 100;
-
-		}
 
 		.voice-input {
 			flex: 1;
@@ -250,7 +251,8 @@
 			width: 100rpx;
 			height: 64rpx;
 			line-height: 64rpx;
-			background: #FFB239;
+			// background: #FFB239;
+			background: #000;
 			text-align: center;
 			border-radius: 8rpx;
 			font-size: 30rpx;

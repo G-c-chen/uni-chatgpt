@@ -1,5 +1,5 @@
 import tips from '@/utils/tips.js';
-const baseUrl = 'http://openapi.gcchen.cn';
+const baseUrl = 'https://openapi.gcchen.cn';
 
 // HTTP工具类
 export default class http {
@@ -51,9 +51,9 @@ export default class http {
 
       } else if ([1326, 1327, 1332, 1009, 1025].includes(Number(response.statusCode))) {
         // 数据不存在，跳转到首页
-      } else if (response.statusCode == 0 || response.statusCode >= 10000) {
+      } else if (response.statusCode == 503 || response.statusCode >= 10000) {
         // 上报错误
-        tips.warning(response.msg);
+        tips.warning(response.data.error);
       } else {
         if (isHandleErr) {
           return {
@@ -67,7 +67,7 @@ export default class http {
       }
     } else {
       // tips.hideLoading();
-      // tips.warning(response.msg);
+      tips.warning(res.data.error);
       throw this.requestException(res);
     }
   }
